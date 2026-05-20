@@ -1,0 +1,22 @@
+﻿@{
+    ViewData["Title"] = "Головна";
+}
+ 
+<h1>Keycloak Demo</h1>
+ 
+@if (User.Identity?.IsAuthenticated == true)
+{
+    <div class="alert alert-success">
+        Привіт, <strong>@User.Identity.Name</strong>! Ти залогінений через Keycloak.
+    </div>
+    <a asp-action="Profile" class="btn btn-primary me-2">Мій профіль</a>
+    <a asp-action="Secret" class="btn btn-warning me-2">Секретна сторінка</a>
+    <a asp-action="Logout" class="btn btn-outline-danger">Вийти</a>
+}
+else
+{
+    <div class="alert alert-secondary">
+        Ви не авторизовані.
+    </div>
+    <a asp-action="Login" class="btn btn-success">Увійти через Keycloak</a>
+}
