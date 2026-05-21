@@ -31,7 +31,8 @@ namespace FinalTask
                 options.GetClaimsFromUserInfoEndpoint = true;
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    NameClaimType = "preferred_username"
+                    NameClaimType = "preferred_username",
+                    RoleClaimType = "realm_access.roles"
                 };
             });
 
