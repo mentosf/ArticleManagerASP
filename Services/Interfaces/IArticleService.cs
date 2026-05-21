@@ -1,6 +1,9 @@
-﻿namespace FinalTask.Services.Interfaces
+﻿using FinalTask.DTOs;
+
+namespace FinalTask.Services.Interfaces
 {
-    public class IArticleService
+    public interface IArticleService
     {
+        Task<ArticleListItemDto> CreateArticleAsync(ArticleDTO dto);
     }
 }

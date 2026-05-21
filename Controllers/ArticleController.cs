@@ -32,18 +32,17 @@ namespace FinalTask.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Writer")]
-        public IActionResult Create(Article article)
+        public IActionResult Create(ArticleDTO dto)
         {
-            
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var username = User.Identity?.Name;
+            if (!ModelState.IsValid)
+            {
+                return View(dto);
+            }
+            await _articleService.CreateArticleAsync(dto);
 
-            article.AuthorId = userId ?? string.Empty;
-            article.AuthorName = username ?? "Anonym";
-            article.CreatedAt = DateTime.UtcNow;
 
-            // _context.Articles.Add(article);
-            // _context.SaveChanges();
+
+
             return RedirectToAction("Index");
         }
 
