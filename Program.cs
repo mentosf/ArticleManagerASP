@@ -1,3 +1,4 @@
+using FinalTask.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
@@ -32,10 +33,27 @@ namespace FinalTask
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     NameClaimType = "preferred_username",
-                    RoleClaimType = "realm_access.roles"
+                    RoleClaimType = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+                };
+                options.Events = new OpenIdConnectEvents
+                {
+                    //OnTokenValidated = context =>
+                    //{
+                    //    var identity = context.Principal?.Identity as System.Security.Claims.ClaimsIdentity;
+                    //    if(identity != null)
+                    //    {
+                    //        var roleClaims = identity.FindAll("roles").ToList();
+                    //        foreach(var role in roleClaims)
+                    //        {
+                    //            identity.AddClaim(new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Role, role.Value));
+                    //        }
+                    //    }
+                    //    return Task.CompletedTask;
+                    //}
                 };
             });
-
+            builder.Services.AddScoped<ArticleService>();
+            builder.Services.AddHttpContextAccessor();
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -55,7 +73,7 @@ namespace FinalTask
             app.MapStaticAssets();
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Auth}/{action=Index}/{id?}")
+                pattern: "{controller=Article}/{action=Index}/{id?}")
                 .WithStaticAssets();
 
             app.Run();

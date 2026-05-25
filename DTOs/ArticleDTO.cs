@@ -8,7 +8,7 @@ namespace FinalTask.DTOs
         [StringLength(200)]
         public string Title { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Контент не може бути порожнім")]
+        [Required(ErrorMessage = "Array content can not be empty")]
         public string Content { get; set; } = string.Empty;
 
         [StringLength(500)]

@@ -7,6 +7,10 @@
 @if (User.Identity?.IsAuthenticated == true)
 {
     <div class="alert alert-success">
+        Твої ролі <br />
+        Ролі: <strong>@string.Join(", ", User.Claims.Where(c => c.Type == System.Security.Claims.ClaimTypes.Role).Select(c => c.Value))</strong>
+    </div>
+    <div class="alert alert-success">
         Привіт, <strong>@User.Identity.Name</strong>! Ти залогінений через Keycloak.
     </div>
     <a asp-action="Profile" class="btn btn-primary me-2">Мій профіль</a>
