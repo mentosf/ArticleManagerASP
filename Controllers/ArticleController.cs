@@ -22,23 +22,28 @@ namespace FinalTask.Controllers
         {
             return View();
         }
+        [Authorize(Roles = "Writer,Admin")]
+        public IActionResult Secret()
+        {
+            return View();
+        }
 
         [HttpGet]
-        [Authorize(Roles = "Writer")]
+        [Authorize(Roles = "Writer,Admin")]
         public IActionResult Create()
         {
             return View();
         } 
 
         [HttpPost]
-        [Authorize(Roles = "Writer")]
+        [Authorize(Roles = "Writer,Admin")]
         public IActionResult Create(ArticleDTO dto)
         {
             if (!ModelState.IsValid)
             {
                 return View(dto);
             }
-            await _articleService.CreateArticleAsync(dto);
+            _articleService.CreateArticleAsync(dto);
 
 
 
@@ -46,7 +51,7 @@ namespace FinalTask.Controllers
             return RedirectToAction("Index");
         }
 
-        [Authorize(Roles = "Writer")]
+        //[Authorize(Roles = "Reader,Writer,Admin")]
         public IActionResult Profile()
         {
             return View();
