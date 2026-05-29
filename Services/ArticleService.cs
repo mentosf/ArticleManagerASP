@@ -27,7 +27,6 @@ namespace FinalTask.Services
                 Summary = dto.Summary,
                 CategoryId = dto.CategoryId,
 
-
                 AuthorId = user.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty,
                 AuthorName = user.Identity?.Name ?? "Anonym",
                 CreatedAt = DateTime.UtcNow,
