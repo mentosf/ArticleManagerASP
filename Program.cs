@@ -1,6 +1,8 @@
+using FinalTask.Data;
 using FinalTask.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 namespace FinalTask
@@ -10,6 +12,9 @@ namespace FinalTask
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+            builder.Services.AddDbContext<ArticleDbContext>(options => options.UseNpgsql(connectionString));
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
