@@ -11,6 +11,7 @@ namespace FinalTask.Data
         public DbSet<Article> Articles { get; set; } = null!;
         public DbSet<Category> Categories { get; set; } = null!;
         public DbSet<Comment> Comments { get; set; } = null!;
-        
+        public DbSet<FavoriteArticle> FavoriteArticles { get; set; }
+
     }
 }

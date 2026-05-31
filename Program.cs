@@ -1,6 +1,7 @@
 using FinalTask.Data;
 using FinalTask.Middlewares;
 using FinalTask.Services;
+using FinalTask.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.EntityFrameworkCore;
@@ -58,7 +59,7 @@ namespace FinalTask
                     //}
                 };
             });
-            builder.Services.AddScoped<ArticleService>();
+            builder.Services.AddScoped<IArticleService, ArticleService>();
             builder.Services.AddHttpContextAccessor();
             var app = builder.Build();
 
@@ -82,6 +83,10 @@ namespace FinalTask
                 pattern: "{controller=Article}/{action=Index}/{id?}")
                 .WithStaticAssets();
 
+
+
+
+            Console.WriteLine($"\n [EF CORE CONNECTION STRING]: {builder.Configuration.GetConnectionString("DefaultConnection")}\n");
             app.Run();
         }
     }

@@ -4,6 +4,7 @@ namespace FinalTask.DTOs
 {
     public class ArticleDTO
     {
+        public int Id { get; set; }
         [Required(ErrorMessage = "Title is required")]
         [StringLength(200)]
         public string Title { get; set; } = string.Empty;
@@ -33,6 +34,7 @@ namespace FinalTask.DTOs
         public string Summary { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }
         public string AuthorName { get; set; } = string.Empty;
+        public string AuthorId { get; set; } = string.Empty;
         public string CategoryName { get; set; } = string.Empty;
 
         // Список коментарів, які ми витягнемо з бази для цієї статті

@@ -79,7 +79,7 @@ namespace FinalTask.Services
 
         public async Task<bool> DeleteArticleAsync(int articleId)
         {
-            var exactArticle = _db.Articles.FirstOrDefaultAsync(s => s.Id == articleId);
+            var exactArticle = await _db.Articles.FirstOrDefaultAsync(s => s.Id == articleId);
             if (exactArticle != null)
             {
                 _db.Remove(exactArticle);
@@ -93,8 +93,6 @@ namespace FinalTask.Services
             return true;
         }
 
-
-
         public async Task<CommentDTO> CreateCommentAsync(string text, int articleId)
         {
             var user = _httpContextAccessor.HttpContext?.User;
@@ -106,7 +104,7 @@ namespace FinalTask.Services
             var comment = new Comment
             {
                 Text = text,
-                CreatedAt = DateTime.Now,
+                CreatedAt = DateTime.UtcNow,
                 ArticleId = articleId,
                 Username = user.Identity?.Name ?? "Anonym",
                 UserId = user.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty
@@ -118,7 +116,7 @@ namespace FinalTask.Services
             return new CommentDTO
             {
                 Text = comment.Text,
-                CreatedAt = DateTime.Now,
+                CreatedAt = comment.CreatedAt,
                 ArticleId = comment.ArticleId,
                 Username = comment.Username,
                 UserId = comment.UserId,
@@ -166,10 +164,26 @@ namespace FinalTask.Services
             };
 
         }
-        public async Task<IEnumerable<ArticleListItemDto>> GetAllPublishedArticlesAsync()
+        public async Task<IEnumerable<ArticleListItemDto>> GetAllPublishedArticlesAsync(string? search = null, string? category = null)
         {
-            return await _db.Articles
-                .Include(a => a.Category) 
+            var query = _db.Articles.AsQueryable();
+
+            // Фільтрація за категорією (через Slug)
+            if (!string.IsNullOrEmpty(category))
+            {
+                query = query.Where(a => a.Category.Slug == category);
+            }
+
+            // Пошук за назвою або вмістом
+            if (!string.IsNullOrEmpty(search))
+            {
+                var lowerSearch = search.ToLower();
+                query = query.Where(a => a.Title.ToLower().Contains(lowerSearch) ||
+                                         a.Summary.ToLower().Contains(lowerSearch));
+            }
+
+            return await query
+                .Include(a => a.Category)
                 .Select(a => new ArticleListItemDto
                 {
                     Id = a.Id,
@@ -200,6 +214,7 @@ namespace FinalTask.Services
                 CreatedAt = article.CreatedAt,
                 AuthorName = article.AuthorName,
                 CategoryName = article.Category?.Name ?? "No category",
+                AuthorId = article.AuthorId,
                 Comments = article.Comments.Select(c => new CommentDTO
                 {
                     Id = c.Id,
@@ -215,6 +230,64 @@ namespace FinalTask.Services
         {
             return await _db.Articles
                 .Where(a => a.AuthorId == authorId)
+                .Select(a => new ArticleListItemDto
+                {
+                    Id = a.Id,
+                    Title = a.Title,
+                    Summary = a.Summary,
+                    CreatedAt = a.CreatedAt,
+                    AuthorName = a.AuthorName
+                }).ToListAsync();
+        }
+        public async Task<IEnumerable<CategoryDTO>> GetAllCategoriesAsync()
+        {
+            return await _db.Categories
+                .Select(c => new CategoryDTO
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                    Slug = c.Slug
+                }).ToListAsync();
+        }
+        public async Task<ArticleDTO> GetArticleForEditAsync(int articleId)
+        {
+            var article = await _db.Articles.FirstOrDefaultAsync(a => a.Id == articleId);
+            if (article == null) return null!;
+
+            return new ArticleDTO
+            {
+                Id = article.Id, 
+                Title = article.Title,
+                Summary = article.Summary,
+                Content = article.Content,
+                CategoryId = article.CategoryId
+            };
+        }
+
+        public async Task<bool> ToggleFavoriteAsync(int articleId, string userId)
+        {
+            var existing = await _db.FavoriteArticles
+                .FirstOrDefaultAsync(f => f.ArticleId == articleId && f.UserId == userId);
+
+            if (existing != null)
+            {
+                _db.FavoriteArticles.Remove(existing);
+                await _db.SaveChangesAsync();
+                return false; // Видалено
+            }
+
+            var favorite = new FavoriteArticle { ArticleId = articleId, UserId = userId };
+            _db.FavoriteArticles.Add(favorite);
+            await _db.SaveChangesAsync();
+            return true; // Додано
+        }
+
+        // Отримати всі збережені статті користувача
+        public async Task<IEnumerable<ArticleListItemDto>> GetFavoriteArticlesAsync(string userId)
+        {
+            return await _db.FavoriteArticles
+                .Where(f => f.UserId == userId)
+                .Select(f => f.Article) // Переходимо до самої статті
                 .Select(a => new ArticleListItemDto
                 {
                     Id = a.Id,
