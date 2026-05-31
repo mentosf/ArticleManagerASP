@@ -4,7 +4,7 @@ namespace FinalTask.DTOs
 {
     public class ArticleDTO
     {
-        [Required(ErrorMessage = "Name is required")]
+        [Required(ErrorMessage = "Title is required")]
         [StringLength(200)]
         public string Title { get; set; } = string.Empty;
 
@@ -24,5 +24,18 @@ namespace FinalTask.DTOs
         public DateTime CreatedAt { get; set; }
         public string AuthorName { get; set; } = string.Empty;
         public string CategoryName { get; set; } = string.Empty;
+    }
+    public class ArticleDetailsDto
+    {
+        public int Id { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string Content { get; set; } = string.Empty;
+        public string Summary { get; set; } = string.Empty;
+        public DateTime CreatedAt { get; set; }
+        public string AuthorName { get; set; } = string.Empty;
+        public string CategoryName { get; set; } = string.Empty;
+
+        // Список коментарів, які ми витягнемо з бази для цієї статті
+        public List<CommentDTO> Comments { get; set; } = new List<CommentDTO>();
     }
 }

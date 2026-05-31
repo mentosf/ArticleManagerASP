@@ -37,13 +37,13 @@ namespace FinalTask.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Writer,Admin")]
-        public IActionResult Create(ArticleDTO dto)
+        public async Task<IActionResult> Create(ArticleDTO dto)
         {
             if (!ModelState.IsValid)
             {
                 return View(dto);
             }
-            _articleService.CreateArticleAsync(dto);
+            await _articleService.CreateArticleAsync(dto);
 
 
 
@@ -51,6 +51,47 @@ namespace FinalTask.Controllers
             return RedirectToAction("Index");
         }
 
+        [HttpGet]
+        [Authorize(Roles = "Writer,Admin")]
+        public IActionResult Update()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Writer,Admin")]
+        public async Task<IActionResult> Update(ArticleDTO dto, int articleId)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(dto);
+            }
+            var result = await _articleService.UpdateArticleAsync(articleId, dto);
+
+            if (result == null)
+            {
+                return NotFound();
+            }
+
+
+            return RedirectToAction("Index");
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> Delete(int articleId)
+        {
+
+            bool result = await _articleService.DeleteArticleAsync(articleId);
+
+            if (!result)
+            {
+                return NotFound();
+            }
+
+
+            return RedirectToAction("Index");
+        }
         //[Authorize(Roles = "Reader,Writer,Admin")]
         public IActionResult Profile()
         {
