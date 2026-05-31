@@ -1,0 +1,58 @@
+﻿@model IEnumerable<FinalTask.DTOs.ArticleListItemDto>
+
+@{
+    ViewData["Title"] = "Desk — Writer Panel";
+}
+
+<div class="max-w-5xl mx-auto px-4 py-12 bg-[#FDFBF7] text-[#1A1A1A] font-sans min-h-screen">
+
+    <div class="flex flex-col md:flex-row md:justify-between md:items-end border-b-2 border-black pb-6 mb-10">
+        <div>
+            <h1 class="text-3xl font-bold font-['Georgia'] uppercase tracking-tight">Writer's Desk</h1>
+            <p class="text-xs text-black/50 tracking-wider uppercase mt-1">Manage your publications and drafts</p>
+        </div>
+        <div class="mt-4 md:mt-0">
+            <a asp-action="CreateArticle" class="inline-block bg-black text-white px-6 py-3 text-xs uppercase tracking-[0.2em] font-bold hover:bg-black/80 transition-colors">
+                + Create New Article
+            </a>
+        </div>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="w-full border-collapse text-left">
+            <thead>
+                <tr class="border-b border-black/40 text-[11px] uppercase tracking-widest text-black/60 font-bold">
+                    <th class="pb-3 font-semibold">Title</th>
+                    <th class="pb-3 font-semibold">Date Created</th>
+                    <th class="pb-3 font-semibold text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-black/10 text-sm">
+                @foreach (var article in Model)
+                {
+                    <tr class="hover:bg-black/[0.01]">
+                        <td class="py-4 font-serif text-base font-bold text-black max-w-md truncate">
+                            <a asp-action="Details" asp-route-id="@article.Id" class="hover:underline">@article.Title</a>
+                        </td>
+                        <td class="py-4 font-mono text-xs text-black/60">
+                            @article.CreatedAt.ToString("yyyy-MM-dd HH:mm")
+                        </td>
+                        <td class="py-4 text-right space-x-4 whitespace-nowrap">
+                            <a asp-action="UpdateArticle" asp-route-articleId="@article.Id"
+                               class="text-xs uppercase tracking-wider font-bold border-b border-transparent hover:border-black transition-all">
+                                Edit
+                            </a>
+
+                            <form asp-action="DeleteArticle" asp-route-articleId="@article.Id" method="post" class="inline-block">
+                                <button type="submit" onclick="return confirm('Archive this article permanently?')"
+                                        class="text-xs uppercase tracking-wider font-bold text-red-800 border-b border-transparent hover:border-red-800 transition-all">
+                                    Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

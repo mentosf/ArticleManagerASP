@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FinalTask.Migrations
 {
     [DbContext(typeof(ArticleDbContext))]
-    [Migration("20260529174849_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260531165103_AddFavoritesTable")]
+    partial class AddFavoritesTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -94,7 +94,7 @@ namespace FinalTask.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categorys");
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("FinalTask.Models.Comment", b =>
@@ -131,6 +131,28 @@ namespace FinalTask.Migrations
                     b.ToTable("Comments");
                 });
 
+            modelBuilder.Entity("FinalTask.Models.FavoriteArticle", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ArticleId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ArticleId");
+
+                    b.ToTable("FavoriteArticles");
+                });
+
             modelBuilder.Entity("FinalTask.Models.Article", b =>
                 {
                     b.HasOne("FinalTask.Models.Category", "Category")
@@ -146,6 +168,17 @@ namespace FinalTask.Migrations
                 {
                     b.HasOne("FinalTask.Models.Article", "Article")
                         .WithMany("Comments")
+                        .HasForeignKey("ArticleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Article");
+                });
+
+            modelBuilder.Entity("FinalTask.Models.FavoriteArticle", b =>
+                {
+                    b.HasOne("FinalTask.Models.Article", "Article")
+                        .WithMany()
                         .HasForeignKey("ArticleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

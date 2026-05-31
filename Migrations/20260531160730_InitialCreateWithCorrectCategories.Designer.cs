@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FinalTask.Migrations
 {
     [DbContext(typeof(ArticleDbContext))]
-    [Migration("20260531142709_RenameCategorysToCategories")]
-    partial class RenameCategorysToCategories
+    [Migration("20260531160730_InitialCreateWithCorrectCategories")]
+    partial class InitialCreateWithCorrectCategories
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

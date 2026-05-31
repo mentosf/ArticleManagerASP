@@ -1,26 +1,122 @@
-﻿@{
-    ViewData["Title"] = "Головна";
+﻿@model IEnumerable<FinalTask.DTOs.ArticleListItemDto>
+
+@{
+    ViewData["Title"] = "The Chronicle — Editorial Grid";
 }
- 
-<h1>Keycloak Demo</h1>
- 
-@if (User.Identity?.IsAuthenticated == true)
-{
-    <div class="alert alert-success">
-        Твої ролі <br />
-        Ролі: <strong>@string.Join(", ", User.Claims.Where(c => c.Type == System.Security.Claims.ClaimTypes.Role).Select(c => c.Value))</strong>
+
+<div class="max-w-6xl mx-auto px-6 py-12 bg-[#FDFBF7] text-[#1A1A1A] font-serif min-h-screen">
+
+    <div class="border-b-2 border-black pb-4 mb-8 text-center">
+        <h1 class="text-5xl md:text-6xl font-black tracking-tight font-['Georgia'] uppercase">The Chronicle</h1>
+        <p class="text-[10px] font-sans font-bold uppercase tracking-[0.35em] text-black/40 mt-2">Editorial & Journal Platform</p>
     </div>
-    <div class="alert alert-success">
-        Привіт, <strong>@User.Identity.Name</strong>! Ти залогінений через Keycloak.
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end border-b border-black/20 pb-6 mb-10 font-sans">
+
+        <div class="md:col-span-1">
+            <form method="get" action="@Url.Action("Index", "Article")" class="relative">
+                @if (!string.IsNullOrEmpty(ViewBag.CurrentCategory))
+                {
+                    <input type="hidden" name="category" value="@ViewBag.CurrentCategory" />
+                }
+                <label class="text-[9px] uppercase tracking-[0.2em] font-bold text-black/40 block mb-1">Search Archive</label>
+                <input type="text" name="search" value="@ViewBag.CurrentSearch" autocomplete="off"
+                       placeholder="Type term & hit enter..."
+                       class="w-full bg-[#FCFAF5] border-b border-black/30 py-1 text-xs focus:outline-none focus:border-black font-mono tracking-wide transition-colors rounded-none placeholder-black/30" />
+            </form>
+        </div>
+
+        <div class="md:col-span-2 flex flex-wrap items-center md:justify-end gap-x-6 gap-y-2 text-[10px] uppercase tracking-[0.2em] font-bold">
+            <span class="text-black/30 text-[9px]">Sections:</span>
+
+            <a href="@Url.Action("Index", "Article", new { search = ViewBag.CurrentSearch })"
+               class="hover:text-black transition-colors @(string.IsNullOrEmpty(ViewBag.CurrentCategory) ? "underline underline-offset-4 decoration-1 font-black" : "text-black/60")">
+                All
+            </a>
+
+            @if (ViewBag.Categories != null)
+            {
+                foreach (var cat in (IEnumerable<FinalTask.DTOs.CategoryDTO>)ViewBag.Categories)
+                {
+                    <a href="@Url.Action("Index", "Article", new { category = cat.Slug, search = ViewBag.CurrentSearch })"
+                       class="hover:text-black transition-colors @(ViewBag.CurrentCategory == cat.Slug ? "underline underline-offset-4 decoration-1 font-black" : "text-black/60")">
+                        @cat.Name
+                    </a>
+                }
+            }
+        </div>
     </div>
-    <a asp-action="Profile" class="btn btn-primary me-2">Мій профіль</a>
-    <a asp-action="Secret" class="btn btn-warning me-2">Секретна сторінка</a>
-    <a asp-action="Logout" class="btn btn-outline-danger">Вийти</a>
-}
-else
-{
-    <div class="alert alert-secondary">
-        Ви не авторизовані.
-    </div>
-    <a asp-action="Login" class="btn btn-success">Увійти через Keycloak</a>
-}
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-20 border border-dashed border-black/10">
+            <p class="text-xs font-mono uppercase tracking-widest text-black/40">No manuscripts matching the criteria found.</p>
+            @if (!string.IsNullOrEmpty(ViewBag.CurrentSearch) || !string.IsNullOrEmpty(ViewBag.CurrentCategory))
+            {
+                <a href="@Url.Action("Index")" class="text-xs font-sans font-bold uppercase tracking-wider underline mt-4 block hover:text-black/60">Reset Filters</a>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            @foreach (var article in Model)
+            {
+                <div class="border border-black/10 bg-[#FCFAF5] p-8 flex flex-col justify-between transition-all hover:border-black/30 hover:shadow-sm">
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <div>
+                                @if (User.Identity.IsAuthenticated && !User.IsInRole("Writer"))
+                                {
+                                    // Перевіряємо, чи стаття вже є в обраному
+                                    bool isFavorite = ViewBag.FavoriteIds != null && ((List<int>)ViewBag.FavoriteIds).Contains(article.Id);
+
+                                    <form asp-action="ToggleFavorite" method="post" class="inline">
+                                        <input type="hidden" name="articleId" value="@article.Id" />
+                                        <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+
+                                        <button type="submit" class="text-[10px] font-sans tracking-widest text-black/50 hover:text-black transition-colors uppercase flex items-center gap-1">
+                                            @if (isFavorite)
+                                            {
+                                                <!-- Заповнений солідний обеліск, якщо стаття ЗБЕРЕЖЕНА -->
+                                                <span class="text-xs">✦</span> <span>Saved</span>
+                                            }
+                                            else
+                                            {
+                                                <!-- Порожній контурний обеліск за замовчуванням -->
+                                                <span class="text-xs">✧</span> <span class="text-black/30 hover:text-black">Save</span>
+                                            }
+                                        </button>
+                                    </form>
+                                }
+                            </div>
+                            <div class="font-mono text-[11px] text-black/40">
+                                @article.CreatedAt.ToString("dd.MM.yyyy")
+                            </div>
+                        </div>
+
+                        <h2 class="text-2xl font-bold font-['Georgia'] tracking-tight text-black leading-tight mb-3">
+                            <a asp-action="Details" asp-route-id="@article.Id"
+                               class="hover:underline hover:decoration-1 hover:underline-offset-4 transition-all">
+                                @article.Title
+                            </a>
+                        </h2>
+
+                        <p class="text-sm text-black/70 font-serif leading-relaxed line-clamp-4">
+                            @article.Summary
+                        </p>
+                    </div>
+
+                    <div class="border-t border-black/10 pt-4 mt-8 flex justify-between items-center text-[11px] font-sans font-bold uppercase tracking-widest">
+                        <span class="text-black/50">By <span class="italic font-serif text-black/80">@article.AuthorName</span></span>
+
+                        <a asp-action="Details" asp-route-id="@article.Id"
+                           class="text-black hover:text-black/60 underline underline-offset-4 decoration-1 font-medium tracking-[0.15em] transition-colors">
+                            Read Article &rarr;
+                        </a>    
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
