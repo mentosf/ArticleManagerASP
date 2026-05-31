@@ -20,8 +20,6 @@
             catch (Exception ex)
             {
                 _logger.LogError($"Something went wrong: {ex.Message}");
-
-                // Якщо це звичайний запит сторінки, редіректимо на помилку
                 context.Response.Redirect("/Home/Error");
             }
         }
