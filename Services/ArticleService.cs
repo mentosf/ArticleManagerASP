@@ -1,6 +1,7 @@
 ﻿using FinalTask.Data;
 using FinalTask.DTOs;
 using FinalTask.Models;
+using Microsoft.EntityFrameworkCore;
 using FinalTask.Services.Interfaces;
 using System.Security.Claims;
 using static System.Collections.Specialized.BitVector32;
@@ -50,7 +51,7 @@ namespace FinalTask.Services
         }
         public async Task<ArticleListItemDto> UpdateArticleAsync(int articleId, ArticleDTO newDto)
         {
-            var exactArticle = _db.Articles.FirstOrDefault(s => s.Id == articleId);
+            var exactArticle = await _db.Articles.FirstOrDefaultAsync(s => s.Id == articleId);
             if (exactArticle != null)
             {
                 exactArticle.Title = newDto.Title;
@@ -78,7 +79,7 @@ namespace FinalTask.Services
 
         public async Task<bool> DeleteArticleAsync(int articleId)
         {
-            var exactArticle = _db.Articles.FirstOrDefault(s => s.Id == articleId);
+            var exactArticle = _db.Articles.FirstOrDefaultAsync(s => s.Id == articleId);
             if (exactArticle != null)
             {
                 _db.Remove(exactArticle);
@@ -126,7 +127,7 @@ namespace FinalTask.Services
         }
         public async Task<bool> DeleteCommentAsync(int commentId)
         {
-            var exactComment = _db.Comments.FirstOrDefault(s => s.Id == commentId);
+            var exactComment = _db.Comments.FirstOrDefaultAsync(s => s.Id == commentId);
             if (exactComment != null)
             {
                 _db.Remove(exactComment);
@@ -139,10 +140,90 @@ namespace FinalTask.Services
             }
             return true;
         }
+
+
+        public async Task<CategoryDTO> CreateCategoryAsync(CategoryDTO dto)
+        {
+            var user = _httpContextAccessor.HttpContext?.User;
+            if (user == null)
+            {
+                Console.WriteLine("UnAuthorized access");
+                return null;
+            }
+            var category = new Category
+            {
+                Name = dto.Name,
+                Slug = dto.Slug
+            };
+            _db.Categories.Add(category);
+            await _db.SaveChangesAsync();
+
+
+            return new CategoryDTO
+            {
+                Name = dto.Name,
+                Slug = dto.Slug
+            };
+
+        }
+        public async Task<IEnumerable<ArticleListItemDto>> GetAllPublishedArticlesAsync()
+        {
+            return await _db.Articles
+                .Include(a => a.Category) 
+                .Select(a => new ArticleListItemDto
+                {
+                    Id = a.Id,
+                    Title = a.Title,
+                    Summary = a.Summary,
+                    CreatedAt = a.CreatedAt,
+                    AuthorName = a.AuthorName
+                }).ToListAsync();
+        }
+        public async Task<ArticleDetailsDto> GetArticleDetailsAsync(int articleId)
+        {
+            var article = await _db.Articles
+                .Include(a => a.Category)
+                .Include(a => a.Comments)
+                .FirstOrDefaultAsync(a => a.Id == articleId);
+
+            if (article == null)
+            {
+                return null;
+            }
+
+            return new ArticleDetailsDto
+            {
+                Id = article.Id,
+                Title = article.Title,
+                Content = article.Content,
+                Summary = article.Summary,
+                CreatedAt = article.CreatedAt,
+                AuthorName = article.AuthorName,
+                CategoryName = article.Category?.Name ?? "No category",
+                Comments = article.Comments.Select(c => new CommentDTO
+                {
+                    Id = c.Id,
+                    Text = c.Text,
+                    CreatedAt = c.CreatedAt,
+                    Username = c.Username,
+                    UserId = c.UserId,
+                    ArticleId = c.ArticleId
+                }).ToList()
+            };
+        }
+        public async Task<IEnumerable<ArticleListItemDto>> GetArticlesByAuthorAsync(string authorId)
+        {
+            return await _db.Articles
+                .Where(a => a.AuthorId == authorId)
+                .Select(a => new ArticleListItemDto
+                {
+                    Id = a.Id,
+                    Title = a.Title,
+                    Summary = a.Summary,
+                    CreatedAt = a.CreatedAt,
+                    AuthorName = a.AuthorName
+                }).ToListAsync();
+        }
     }
-
-
-
-
 
 }
