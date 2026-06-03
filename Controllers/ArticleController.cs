@@ -226,17 +226,7 @@ namespace FinalTask.Controllers
             return RedirectToAction("Index");
         }
 
-        [HttpPost]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> CreateCategory(CategoryDTO dto)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View(dto);
-            }
-            await _articleService.CreateCategoryAsync(dto);
-            return RedirectToAction("Index");
-        }
+        
 
 
         //[Authorize(Roles = "Reader,Writer,Admin")]

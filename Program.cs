@@ -78,6 +78,11 @@ namespace FinalTask
             app.UseAuthorization();
 
             app.MapStaticAssets();
+            app.MapAreaControllerRoute(
+    name: "admin_area",
+    areaName: "Admin",
+    pattern: "Admin/{controller=Dashboard}/{action=Index}/{id?}"
+);
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Article}/{action=Index}/{id?}")

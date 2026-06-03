@@ -29,27 +29,27 @@
         </div>
 
         <div class="flex items-center space-x-6">
-            <!-- Публічні посилання -->
-            <a asp-controller="Article" asp-action="Index" class="hover:underline pb-0.5">Home</a>
+            <a asp-area="" asp-controller="Article" asp-action="Index" class="hover:underline pb-0.5">Home</a>
 
             @if (User.Identity.IsAuthenticated)
             {
-                <!-- Посилання для ролі Writer -->
-                @if (User.IsInRole("Writer"))
+                @if (User.IsInRole("Admin"))
                 {
-                    <a asp-controller="Article" asp-action="MyProfile" class="hover:underline pb-0.5 text-black">My Desk</a>
+                    <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="hover:underline pb-0.5 text-black tracking-[0.25em]">Admin Panel</a>
                 }
 
-                <!-- Загальний профіль / Інформація -->
-                <a asp-controller="Article" asp-action="AuthorProfile" class="hover:underline pb-0.5 text-black/60">Profile</a>
+                @if (User.IsInRole("Writer"))
+                {
+                    <a asp-area="" asp-controller="Article" asp-action="MyProfile" class="hover:underline pb-0.5 text-black">My Desk</a>
+                }
 
-                <!-- Текстове посилання на вихід -->
-                <a asp-controller="Article" asp-action="Logout" class="hover:underline pb-0.5 text-red-800">Sign Out</a>
+                <a asp-area="" asp-controller="Article" asp-action="AuthorProfile" class="hover:underline pb-0.5 text-black/60">Profile</a>
+
+                <a asp-area="" asp-controller="Article" asp-action="Logout" class="hover:underline pb-0.5 text-red-800">Sign Out</a>
             }
             else
             {
-                <!-- Текстове посилання на вхід -->
-                <a asp-controller="Article" asp-action="Login" class="hover:underline pb-0.5 text-black">Sign In</a>
+                <a asp-area="" asp-controller="Article" asp-action="Login" class="hover:underline pb-0.5 text-black">Sign In</a>
             }
         </div>
     </nav>
