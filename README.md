@@ -9,7 +9,8 @@ A web application for managing articles, built with **ASP.NET Core MVC** (.NET 1
 - **OpenID Connect (Keycloak)** — user authentication and authorization
 - **Areas** — separate admin area (`Areas/Admin`)
 - **Custom Middleware** — custom exception handling (`ExceptionHandlingMiddleware`)
-<img width="2918" height="1902" alt="image" src="https://github.com/user-attachments/assets/94559238-c69c-48e0-bb31-a8f61bab6e15" />
+<img width="2948" height="1896" alt="Знімок екрана 2026-08-23 200010" src="https://github.com/user-attachments/assets/fc1ca671-eba6-4ce6-9af0-dc9d025609a1" />
+
 
 ## Project Structure
 
